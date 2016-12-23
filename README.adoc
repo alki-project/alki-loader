@@ -1,0 +1,124 @@
+# Alki::Loader
+
+Alki loader is a library for using "non-standard" source files in your project. What is
+a non-standard source file?
+
+Generally a ruby source file follows these rules:
+
+1. It should be placed in a directory that is in `$LOAD_PATH`, so that it can be loaded using `require`.
+2. It should define one ore more constants.
+3. Ideally, it should just define a constant that is the "classified" version of the relative path of the
+   file (if a directory `/project/lib` is in `$LOAD_DIR` and there is a file called `/project/lib/my_mod/my_class.rb`
+   then the constant defined within it should be `MyMod::MyClass`).
+
+This works well much of the time, but often enough it's nice to break some of these rules.
+For example, you might want files in directories in your project like `config` or `app` but don't want
+to add those to `$LOAD_PATH` because it could cause conflicts, or maybe you have files that you don't
+want to just define a module or class (like a DSL).
+
+Alki::Loader provides tools that enable these patterns while still allowing you to use these files
+in standard ways.
+
+There are three main components of Alki::Loader:
+
+Translater:: Allows registering directory and file paths with fake "names" so, for example, your
+         projects `config` directory could be registered with the name `my_project/config`. Now
+         when calling `require 'my_project/config/my_config'` Ruby will load `config/my_config.rb`
+         (but `require 'my_config'` will still find nothing).
+
+Builder:: Allows registering directory and file paths with "builder" objects and configuration values.
+          Files under these paths put their code in an unevaluated block that is passed to the builder
+          so that it can process it and ultimately define the expected constant for that path with
+          a value.
+
+Registry:: To allow the other two components to work, paths must be registered with Alki::Loader. This
+           can be done anytime in code but can also be set by putting register calls in an `alk_loader.rb`
+           file in any directory in `$LOAD_PATH`.
+
+## Installation
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'alki-loader'
+```
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install alki-loader
+
+## Usage
+
+```ruby
+require 'alki/loader'
+```
+
+Once the library is required you can require files as you normally would.
+
+To register a path, use `Alki::Loader.register(path,settings)`. This can be called anywhere at any
+time, but to make sure your paths are registered before they're needed, it's best to use an
+`alki_loader.rb` file.
+
+To use one create a `alki_loader.rb` file in whatever directory in your project is in `$LOAD_PATH`
+(typically `lib`). It should just contain normal `Alki::Loader.register` calls.
+
+The path argument to register should either be an absolute path, or a path relative to directory of the
+calling file (if you have `Alki::Loader.register '../config', ... ` in `lib/alki_loader.rb` it will
+register `config`).
+
+If path registrations exist for multiple prefixes of the same file, the longest one will be used.
+
+### Settings
+
+When registering a path, the second argument is hash of settings to configure the path. These can be
+arbitrary key/value pairs but there are two setting values with special meaning.
+
+[horizontal]
+name:: Provide a name for the translater to use for this path. Will translate just the registered
+       path and leave the rest of the path the same when changed.
+builder:: Set the builder object, if one is wanted. Can be any object with a `build` method or a require
+          path where a constant can be found that has a build class method (`my_project/my_builder` will
+          attempt to find `MyProject::MyBuilder` and will call `require 'my_project/my_builder'`
+          to try and find it).
+
+### Builders
+
+A file that is to be built using a builder should always be in an Alki block:
+
+.my_file.rb
+```ruby
+Alki do
+  # stuff goes here
+end
+```
+
+When the file is loaded, the builder object registered for the path will be called like so:
+
+```ruby
+builder.build settings, &blk
+```
+
+Where `blk` is the unevaluated block from the file, and `settings` is a hash containing all of the
+settings registered to the path, along with two extra settings so the builder knows what file it's
+building.
+
+[horizontal]
+name:: What would be passed to `require` to load the file. If the file is in a `$LOAD_PATH` directory
+       it will be the relative path from the directory minus the '.rb'. If there is name translation
+       registered on the path, that will be used instead.
+constant_name:: The "class-ified" version of the name, following the typical rules for translating
+                require paths into constant names. No special rules are used for abbreviations.
+
+## Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/alki-project/alki-loader. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the http://contributor-covenant.org[Contributor Covenant] code of conduct.
+
+
+## License
+
+The gem is available as open source under the terms of the http://opensource.org/licenses/MIT[MIT License].
+

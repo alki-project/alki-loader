@@ -1,2 +1,4 @@
 require "bundler/gem_tasks"
-task :default => :spec
+require 'alki/testing/tasks'
+
+task :default => :test

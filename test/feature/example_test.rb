@@ -1,6 +1,5 @@
-require 'bundler/setup'
-require 'minitest/autorun'
-require 'alki/loader'
+require 'alki/feature_test'
+
 $example_path = File.expand_path('../../fixtures/example',__FILE__)
 $LOAD_PATH.unshift File.join($example_path,'lib')
 

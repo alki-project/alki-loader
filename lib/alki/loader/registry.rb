@@ -27,7 +27,7 @@ module Alki
           @paths << entry
           @names.sort!{|a,b| b.path <=> a.path}
           if entry.name
-            @names.delete_if{|e| e.path == entry.path }
+            @names.delete_if{|e| e.name == entry.name }
             @names << entry
             @names.sort!{|a,b| b.name <=> a.name}
           end

@@ -1,5 +1,3 @@
-require 'alki/loader'
-
 module Kernel
   alias_method :__alki_loader_original_require, :require
 

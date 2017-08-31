@@ -55,9 +55,13 @@ module Alki
           path_hash = $LOAD_PATH.hash
           return if @configs_loaded == path_hash
           @configs_loaded = path_hash
-          Gem.find_files_from_load_path('alki_loader.rb').each do |config_path|
-            require config_path
-          end
+          load_alki_loader_files
+        end
+      end
+
+      def load_alki_loader_files
+        Gem.find_latest_files('alki_loader.rb').each do |config_path|
+          require config_path
         end
       end
     end

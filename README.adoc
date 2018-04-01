@@ -1,5 +1,7 @@
 # Alki::Loader
 
+image:https://travis-ci.org/alki-project/alki-loader.svg?branch=master["Build Status", link="https://travis-ci.org/alki-project/alki-loader"]
+
 Alki loader is a library for using "non-standard" source files in your project. What is
 a non-standard source file?
 

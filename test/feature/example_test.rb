@@ -31,4 +31,10 @@ describe 'Example' do
       name.must_equal 'example/files/three'
     end
   end
+
+  describe 'four' do
+    it 'should use builder based on directory' do
+      Alki::Support.load('example/files2/four').must_equal :four
+    end
+  end
 end

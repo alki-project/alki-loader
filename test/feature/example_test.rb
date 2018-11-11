@@ -1,16 +1,21 @@
 require 'alki/feature_test'
 
-$example_path = File.expand_path('../../fixtures/example',__FILE__)
-$LOAD_PATH.unshift File.join($example_path,'lib')
-
 describe 'Example' do
+  before do
+    setup_example
+  end
+
+  after do
+    unload_example
+  end
+
   describe 'one' do
     it 'should use translater and loader' do
       Alki::Support.load('example/files/one').must_equal :one
     end
 
     it 'lookup should work' do
-      name = Alki::Loader.lookup_name File.join($example_path,'files','one.rb')
+      name = Alki::Loader.lookup_name File.join(example_path,'files','one.rb')
       name.must_equal 'example/files/one'
     end
   end
@@ -27,7 +32,7 @@ describe 'Example' do
     end
 
     it 'lookup should work' do
-      name = Alki::Loader.lookup_name File.join($example_path,'lib','example','files','three.rb')
+      name = Alki::Loader.lookup_name File.join(example_path,'lib','example','files','three.rb')
       name.must_equal 'example/files/three'
     end
   end

@@ -54,7 +54,7 @@ module Alki
       if entry && entry.name
         name = entry.name + path[entry.path.size..-1]
       else
-        dir = $LOAD_PATH.find{|d| path.start_with?(File.join(d,''))}
+        dir = load_dir_for_path path
         unless dir
           return nil
         end
@@ -62,6 +62,16 @@ module Alki
       end
       name.chomp!('.rb')
       name
+    end
+
+    def self.load_dir_for_path(path)
+      $LOAD_PATH.each do |dir|
+        if Dir.exist? dir
+          real_dir = File.realpath dir
+          return real_dir if path.start_with?(File.join(real_dir,''))
+        end
+      end
+      nil
     end
   end
 end
